@@ -1,0 +1,21 @@
+---
+vector_config_path: /etc/vector/vector.yaml
+
+vector_service_name: vector
+
+vector_sources:
+  demo_logs:
+    type: demo_logs
+    format: json
+
+vector_transforms: {}
+
+vector_sinks:
+  console:
+    type: console
+    inputs:
+      - demo_logs
+    encoding:
+      codec: json
+
+vector_validate_config: true

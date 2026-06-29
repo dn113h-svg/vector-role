@@ -1,0 +1,54 @@
+---
+- name: Check supported OS family
+  ansible.builtin.assert:
+    that:
+      - ansible_os_family == "Debian"
+    fail_msg: "This role currently supports only Debian/Ubuntu systems."
+
+- name: Install packages required for Vector repository setup
+  ansible.builtin.apt:
+    name:
+      - curl
+      - ca-certificates
+      - gnupg
+    state: present
+    update_cache: true
+
+- name: Add Vector APT repository
+  ansible.builtin.shell: |
+    set -e
+    bash -c "$(curl -L https://setup.vector.dev)"
+  args:
+    creates: /etc/apt/sources.list.d/vector.list
+  changed_when: true
+
+- name: Install Vector
+  ansible.builtin.apt:
+    name: vector
+    state: present
+    update_cache: true
+
+- name: Ensure Vector config directory exists
+  ansible.builtin.file:
+    path: "{{ vector_config_path | dirname }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Render Vector config
+  ansible.builtin.template:
+    src: vector.yaml.j2
+    dest: "{{ vector_config_path }}"
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - Validate Vector config
+    - Restart Vector
+
+- name: Enable and start Vector service
+  ansible.builtin.service:
+    name: "{{ vector_service_name }}"
+    state: started
+    enabled: true
