@@ -15,6 +15,7 @@
       - lsb-release
     state: present
     update_cache: true
+  become: true
 
 - name: Setup Vector repository
   ansible.builtin.shell: |
