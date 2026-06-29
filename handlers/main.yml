@@ -2,10 +2,10 @@
 - name: Validate Vector config
   ansible.builtin.command:
     cmd: "vector validate {{ vector_config_path }}"
-  when: vector_validate_config | bool
   changed_when: false
+  when: vector_validate_config | bool
 
 - name: Restart Vector
-  ansible.builtin.service:
+  ansible.builtin.systemd:
     name: "{{ vector_service_name }}"
     state: restarted

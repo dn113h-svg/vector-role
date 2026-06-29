@@ -1,40 +1,36 @@
 ---
-- name: Check supported OS family
+- name: Check Ubuntu version
   ansible.builtin.assert:
     that:
-      - ansible_os_family == "Debian"
-    fail_msg: "This role currently supports only Debian/Ubuntu systems."
+      - ansible_distribution == "Ubuntu"
+      - ansible_distribution_version is version("20.04", "==")
+    fail_msg: "This playbook is intended for Ubuntu 20.04 only."
 
-- name: Install packages required for Vector repository setup
+- name: Install required packages
   ansible.builtin.apt:
     name:
       - curl
       - ca-certificates
       - gnupg
+      - lsb-release
     state: present
     update_cache: true
 
-- name: Add Vector APT repository
+- name: Setup Vector repository
   ansible.builtin.shell: |
-    set -e
-    bash -c "$(curl -L https://setup.vector.dev)"
+    set -o pipefail
+    curl -fsSL https://setup.vector.dev | bash
   args:
+    executable: /bin/bash
     creates: /etc/apt/sources.list.d/vector.list
-  changed_when: true
+  become: true
+  environment:
+    DEBIAN_FRONTEND: noninteractive
 
-- name: Install Vector
-  ansible.builtin.apt:
-    name: vector
-    state: present
-    update_cache: true
+- name: Install vector
+  ansible.builtin.command:
+      cmd: sudo apt-get install vector
 
-- name: Ensure Vector config directory exists
-  ansible.builtin.file:
-    path: "{{ vector_config_path | dirname }}"
-    state: directory
-    owner: root
-    group: root
-    mode: "0755"
 
 - name: Render Vector config
   ansible.builtin.template:
@@ -48,7 +44,8 @@
     - Restart Vector
 
 - name: Enable and start Vector service
-  ansible.builtin.service:
+  ansible.builtin.systemd:
     name: "{{ vector_service_name }}"
-    state: started
     enabled: true
+    state: started
+    daemon_reload: true

@@ -1,12 +1,16 @@
 ---
-vector_config_path: /etc/vector/vector.yaml
+vector_version: "latest"
 
-vector_service_name: vector
+vector_config_path: "/etc/vector/vector.yaml"
+vector_service_name: "vector"
+
+vector_validate_config: true
 
 vector_sources:
   demo_logs:
     type: demo_logs
     format: json
+    interval: 1
 
 vector_transforms: {}
 
@@ -17,5 +21,3 @@ vector_sinks:
       - demo_logs
     encoding:
       codec: json
-
-vector_validate_config: true
