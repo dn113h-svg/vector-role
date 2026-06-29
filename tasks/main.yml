@@ -29,8 +29,9 @@
     DEBIAN_FRONTEND: noninteractive
 
 - name: Install vector
-  ansible.builtin.command:
-      cmd: sudo apt-get install vector
+  ansible.builtin.apt:
+    name: vector
+    state: present
 
 
 - name: Render Vector config
