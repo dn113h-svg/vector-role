@@ -1,11 +1,4 @@
 ---
-- name: Check Ubuntu version
-  ansible.builtin.assert:
-    that:
-      - ansible_distribution == "Ubuntu"
-      - ansible_distribution_version is version("20.04", "==")
-    fail_msg: "This playbook is intended for Ubuntu 20.04 only."
-
 - name: Install required packages
   ansible.builtin.apt:
     name:
