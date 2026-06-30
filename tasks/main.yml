@@ -35,4 +35,3 @@
   become: true
   notify:
     - Validate Vector config
-    - Restart Vector
