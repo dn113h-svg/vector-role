@@ -1,11 +1,10 @@
 ---
 - name: Install required packages
-  ansible.builtin.apt:
+  ansible.builtin.dnf:
     name:
       - curl
       - ca-certificates
-      - gnupg
-      - lsb-release
+      - gnupg2
     state: present
     update_cache: true
   become: true
@@ -16,16 +15,15 @@
     curl -fsSL https://setup.vector.dev | bash
   args:
     executable: /bin/bash
-    creates: /etc/apt/sources.list.d/vector.list
+    creates: /etc/yum.repos.d/vector.repo
   become: true
-  environment:
-    DEBIAN_FRONTEND: noninteractive
 
-- name: Install vector
-  ansible.builtin.apt:
+- name: Install Vector
+  ansible.builtin.dnf:
     name: vector
     state: present
-
+    update_cache: true
+  become: true
 
 - name: Render Vector config
   ansible.builtin.template:
@@ -34,6 +32,7 @@
     owner: root
     group: root
     mode: "0644"
+  become: true
   notify:
     - Validate Vector config
     - Restart Vector
